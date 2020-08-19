@@ -1,10 +1,10 @@
-const path = require('path')
-const resolve = dir => path.join(__dirname, dir)
-const IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
+const path = require('path'),
+  resolve = dir => path.join(__dirname, dir),
+  IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
 
 // 开启gzip压缩
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
-const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
+const CompressionWebpackPlugin = require('compression-webpack-plugin'),
+  productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
 module.exports = {
   devServer: {
     overlay: {
@@ -19,13 +19,21 @@ module.exports = {
     hotOnly: true, // 热更新
     proxy: {
       '/api': {
-        target:
-          'https://www.easy-mock.com/mock/5bc75b55dc36971c160cad1b/sheets', // 目标代理接口地址
+        target: 'https://wwwxxxx', // 目标代理接口地址
         secure: false,
         changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
         // ws: true, // 是否启用websockets
         pathRewrite: {
-          '^/api': '/'
+          '^/api': ''
+        }
+      },
+      '/temp': {
+        target: 'https://wwwxxxx', // 目标代理接口地址
+        secure: false,
+        changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
+        // ws: true, // 是否启用websockets
+        pathRewrite: {
+          '^/temp': ''
         }
       }
     }
