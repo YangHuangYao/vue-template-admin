@@ -6,6 +6,7 @@ const IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
 module.exports = {
+
   devServer: {
     overlay: {
       // 让浏览器 overlay 同时显示警告和错误
