@@ -21,21 +21,27 @@ export default {
     }
   },
   created() {
-    const self = this,
-      flag =
-        self.sgs === 'df'
-          ? 'sdfsdf0'
-          : self.sgs === 'dd'
+    const self = this
+    const flag =
+      self.sgs === 'df'
+        ? 'sdfsdf0'
+        : self.sgs === 'dd'
           ? 'drd'
           : self.sgs === 'dd'
-          ? 'drd'
-          : false
+            ? 'drd'
+            : false
     if (this.msg === 'oiooop') {
       console.log(this.msg)
     }
   },
   sdds() {
-    let sdf
+    let sdf = true
+    let ff = true
+    if (this.msg === 'oiooop') {
+      console.log(this.msg)
+      sdf = false
+      ff = false
+    }
   }
 }
 </script>

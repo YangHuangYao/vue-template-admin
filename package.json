@@ -8,7 +8,7 @@
     "dev-build": "vue-cli-service build --mode development",
     "test-build": "vue-cli-service build --mode test",
     "beta-build": "vue-cli-service build --mode beta",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint "
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
