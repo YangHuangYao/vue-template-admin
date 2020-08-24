@@ -7,5 +7,7 @@
     <router-view />
   </div>
 </template>
-
+<script>
+console.log(999)
+</script>
 <style lang="scss"></style>

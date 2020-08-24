@@ -5,8 +5,9 @@ const IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
 // 开启gzip压缩
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin // 打包分析
 module.exports = {
-
+  productionSourceMap: !IS_PROD, // 生产环境的 source map
   devServer: {
     overlay: {
       // 让浏览器 overlay 同时显示警告和错误
@@ -76,10 +77,58 @@ module.exports = {
           gifsicle: { interlaced: false }
           // webp: { quality: 75 }
         })
+      // 打包分析
+        // 打包之后自动生成一个名叫report.html文件(可忽视)
+      config.plugin('webpack-report').use(BundleAnalyzerPlugin, [
+        {
+          analyzerMode: 'static'
+        }
+      ])
     }
   },
   configureWebpack: config => {
+    const plugins = []
     if (IS_PROD) {
+      config.optimization = {
+        splitChunks: {
+          cacheGroups: {
+            common: {
+              name: 'chunk-common',
+              chunks: 'initial',
+              minChunks: 2,
+              maxInitialRequests: 5,
+              minSize: 0,
+              priority: 1,
+              reuseExistingChunk: true,
+              enforce: true
+            },
+            vendors: {
+              name: 'chunk-vendors',
+              test: /[\\/]node_modules[\\/]/,
+              chunks: 'initial',
+              priority: 2,
+              reuseExistingChunk: true,
+              enforce: true
+            },
+            elementUI: {
+              name: 'chunk-elementui',
+              test: /[\\/]node_modules[\\/]element-ui[\\/]/,
+              chunks: 'all',
+              priority: 3,
+              reuseExistingChunk: true,
+              enforce: true
+            }
+            // echarts: {
+            //   name: 'chunk-echarts',
+            //   test: /[\\/]node_modules[\\/](vue-)?echarts[\\/]/,
+            //   chunks: 'all',
+            //   priority: 4,
+            //   reuseExistingChunk: true,
+            //   enforce: true
+            // }
+          }
+        }
+      }
       // 开启 gzip 压缩
       return {
         plugins: [
@@ -93,5 +142,6 @@ module.exports = {
         ]
       }
     }
+    config.plugins = [...config.plugins, ...plugins]
   }
 }
