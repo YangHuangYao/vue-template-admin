@@ -5,15 +5,17 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "dev-build": "vue-cli-service build --mode development",
-    "test-build": "vue-cli-service build --mode test",
+    "lint": "vue-cli-service lint ",
     "beta-build": "vue-cli-service build --mode beta",
-    "lint": "vue-cli-service lint "
+    "dev-build": "vue-cli-service build --mode development",
+    "test-build": "vue-cli-service build --mode test"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
+    "element-ui": "^2.4.5",
+    "qs": "^6.9.4",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0",
@@ -27,6 +29,7 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/eslint-config-standard": "^5.1.2",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-component": "^1.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "compression-webpack-plugin": "^5.0.0",
     "eslint": "^6.7.2",
@@ -38,6 +41,7 @@
     "image-webpack-loader": "^6.0.0",
     "node-sass": "^4.12.0",
     "sass-loader": "^8.0.2",
+    "vue-cli-plugin-element": "~1.0.1",
     "vue-template-compiler": "^2.6.11",
     "webpack-report": "^1.2.0"
   }

@@ -64,6 +64,7 @@ module.exports = {
       .set('@store', resolve('src/store'))
       .set('@views', resolve('src/views'))
       .set('@themes', resolve('src/themes'))
+      .set('@utils', resolve('src/utils'))
     if (IS_PROD) {
       // 图片压缩
       config.module
