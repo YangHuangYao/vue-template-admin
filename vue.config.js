@@ -6,6 +6,29 @@ const IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin // 打包分析
+// 配置代理start
+const proxy = {}
+const pathRewriteA = {}
+const pathRewriteB = {}
+const proxyObj = {
+  secure: false,
+  changeOrigin: true // 开启代理，在本地创建一个虚拟服务端
+  // ws: true, // 是否启用websockets
+}
+if (process.env.APP_API_PATH_NAME) {
+  pathRewriteA[`^${process.env.APP_API_PATH_NAME}`] = ''
+  proxyObj.target = process.env.APP_API_URL
+  proxyObj.pathRewrite = pathRewriteA
+  proxy[process.env.APP_API_PATH_NAME] = proxyObj
+}
+if (process.env.APP_TEMPLATE_PATH_NAME) {
+  pathRewriteB[`^${process.env.APP_TEMPLATE_PATH_NAME}`] = ''
+  proxyObj.target = process.env.APP_TEMPLATE_PATH_NAME
+  proxyObj.pathRewrite = pathRewriteB
+  proxy[process.env.APP_API_PATH_NAME] = proxyObj
+}
+// 配置代理end
+
 module.exports = {
   productionSourceMap: !IS_PROD, // 生产环境的 source map
   devServer: {
@@ -19,26 +42,7 @@ module.exports = {
     port: '8080', // 代理断就
     // https: false,
     hotOnly: true, // 热更新
-    proxy: {
-      '/api': {
-        target: process.env.APP_API_URL, // 目标代理接口地址
-        secure: false,
-        changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
-        // ws: true, // 是否启用websockets
-        pathRewrite: {
-          '^/api': ''
-        }
-      },
-      '/temp': {
-        target: process.env.APP_TEMPLATE_URL, // 目标代理接口地址
-        secure: false,
-        changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
-        // ws: true, // 是否启用websockets
-        pathRewrite: {
-          '^/temp': ''
-        }
-      }
-    }
+    proxy: proxy
   },
   chainWebpack: config => {
     // 修复HMR热更新
@@ -75,9 +79,17 @@ module.exports = {
           mozjpeg: { progressive: true, quality: 65 },
           optipng: { enabled: false },
           pngquant: { quality: [0.65, 0.9], speed: 4 },
-          gifsicle: { interlaced: false }
-          // webp: { quality: 75 }
+          gifsicle: { interlaced: false },
+          webp: { quality: 75 }
         })
+      config
+        .output
+        .filename('[name][chunkhash].js')
+        .end()
+      config
+        .output
+        .chunkFilename('[name][chunkhash].js')
+        .end()
       // 打包分析
         // 打包之后自动生成一个名叫report.html文件(可忽视)
       config.plugin('webpack-report').use(BundleAnalyzerPlugin, [
