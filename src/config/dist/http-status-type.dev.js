@@ -8,7 +8,7 @@ exports["default"] = void 0;
 var _default = {
   stateName: 'stateCode',
   successCode: 200,
-  requestContinuousTime: 3 * 1000,
+  requestContinuousTime: 2 * 1000,
   // 连续请求时间间隔
   requestContinuousTimeState: true // 是否设置频繁请求的请求拦截
 
