@@ -1,52 +1,38 @@
 <template>
-  <div class="home">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-  </div>
+ <div class='page-home'>
+首页fgh
+ </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  },
+  components: {},
+  props: {},
   data() {
     return {
-      msg: 'oiswswsws',
-      arryy: [1, 2, 2, 3, 5],
-      sgs: 'df'
+
     }
   },
+  computed: {},
+  watch: {},
+  filters: {},
   created() {
-    const self = this
-    const flag =
-      self.sgs === 'df'
-        ? 'sdfsdf0'
-        : self.sgs === 'dd'
-          ? 'drd'
-          : self.sgs === 'dd'
-            ? 'drd'
-            : false
-    if (this.msg === 'oiooop') {
-      console.log(this.msg)
-    }
   },
-  sdds() {
-    let sdf = true
-    let ff = true
-    if (this.msg === 'oiooop') {
-      console.log(this.msg)
-      sdf = false
-      ff = false
-    }
-  }
+  mounted() {
+  },
+  updated() {
+  },
+  destroyed() {
+  },
+  activated() { // keepAlive启用
+  },
+  deactivated() { // keepAlive停用
+  },
+  methods: {}
 }
 </script>
-<style lang="scss" scoped>
-.home{
-  background-color: wheat;
-}
+
+<style lang='scss' scoped>
+
+
 </style>

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.put = exports.del = exports.post = exports.get = void 0;
+exports["default"] = void 0;
 
 var _axios = _interopRequireDefault(require("axios"));
 
@@ -14,6 +14,8 @@ var _vue = _interopRequireDefault(require("vue"));
 var _elementUi = require("element-ui");
 
 var _index = _interopRequireDefault(require("@utils/index"));
+
+var _httpStatusType = _interopRequireDefault(require("@config/http-status-type"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -29,16 +31,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Https =
+var NewAxios =
 /*#__PURE__*/
 function () {
-  function Https() {
-    _classCallCheck(this, Https);
+  function NewAxios() {
+    _classCallCheck(this, NewAxios);
 
-    this._axios = null;
     this.Loading = null;
-    this.CancelToken = null;
-    this.pending = []; // 一个数组用于存储每个ajax请求的取消函数和ajax标识
+    this.sources = {};
+    this.requestList = []; // 一个数组用于存储每个ajax请求的取消函数和ajax标识
 
     this._config = {
       baseURL: process.env.APP_BASE_URL,
@@ -48,46 +49,54 @@ function () {
     };
   }
 
-  _createClass(Https, [{
+  _createClass(NewAxios, [{
     key: "removePending",
-    value: function removePending(ever) {
+    value: function removePending(request) {
       // 取消操作请求和移除请求记录
-      for (var p in this.pending) {
-        if (this.pending[p].u === ever.url + '&' + ever.method) {
-          // 当当前请求在数组中存在时执行函数体
-          this.pending[p].f(); // 执行取消操作
-
-          this.pending.splice(p, 1); // 把这条记录从数组中移除
+      for (var i = 0; i < this.requestList.length; i++) {
+        if (request === this.requestList[i]) {
+          this.requestList.splice(i, 1); // 把这条记录从数组中移除
         }
       }
     }
   }, {
     key: "setInterceptors",
-    value: function setInterceptors(instance, url) {
-      var self = this; // 这里的url可供你针对需要特殊处理的接口路径设置不同拦截器。
-
-      if (url === '/user') {} // todo define diffrent interceptors
-      // http request 拦截器
-
+    value: function setInterceptors(instance, CancelToken) {
+      var self = this;
+      var requestContinuousTime = _httpStatusType["default"].requestContinuousTime,
+          requestContinuousTimeState = _httpStatusType["default"].requestContinuousTimeState; // http request 拦截器
 
       instance.interceptors.request.use(function (config) {
-        config.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          token: _index["default"].storageGet('location', 'token')
-        };
-        self.Loading = _elementUi.Loading.service(); // ------------------------------------------------------------------------------------
+        self.Loading = _elementUi.Loading.service();
+        config.headers.token = _index["default"].storageGet('location', 'token') ? _index["default"].storageGet('location', 'token') : '';
+        config.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
+        config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        var request = JSON.stringify(config.url) + JSON.stringify(config.method) + JSON.stringify(config.data || '');
 
-        self.removePending(config); // 在一个ajax发送前执行一下取消操作
-
-        config.cancelToken = new self.CancelToken(function (c) {
-          // 这里的ajax标识我是用请求地址&请求方式拼接的字符串，当然你可以选择其他的一些方式
-          self.pending.push({
-            u: config.url + '&' + config.method,
-            f: c
+        if (requestContinuousTimeState) {
+          // 处理取消请求satrt
+          config.cancelToken = new CancelToken(function (c) {
+            // 这里的ajax标识我是用请求地址&请求方式拼接的字符串，当然你可以选择其他的一些方式
+            self.sources[request] = c;
           });
-        }); // -----------------------------------------------------------------------------------------
 
-        return Promise.resolve(self.checkStatus(config));
+          if (self.requestList.includes(request)) {
+            self.sources[request]({
+              requestType: 'warning',
+              message: '请不要频繁操作！'
+            });
+            setTimeout(function () {
+              self.removePending(request);
+            }, requestContinuousTime);
+          } else {
+            if (!self.requestList.includes(request)) {
+              self.requestList.push(request);
+            }
+          } // 处理取消请求end
+
+        }
+
+        return Promise.resolve(config);
       }, function (error) {
         // 对请求错误做处理...
         self.Loading.close();
@@ -97,8 +106,8 @@ function () {
 
       instance.interceptors.response.use(function (response) {
         self.Loading.close();
-        self.removePending(response);
-        return Promise.resolve(self.checkStatus(response));
+        self.checkStatus(response);
+        return Promise.resolve(response.data);
       }, function (error) {
         // 对响应错误做处理...
         self.Loading.close();
@@ -109,6 +118,15 @@ function () {
           error.msg = '请求超时';
           return Promise.reject(error);
         } else {
+          if (typeof error.message.message !== 'undefined') {
+            (0, _elementUi.Message)({
+              message: error.message.message,
+              type: 'warning'
+            });
+          } else {
+            _elementUi.Message.error(error.message);
+          }
+
           return Promise.reject(error);
         }
       }); // http response 拦截器end
@@ -119,67 +137,80 @@ function () {
       var status = response.status || -1000; // -1000 自己定义，连接错误的status
 
       if (status >= 200 && status < 300 || status === 304) {
-        // 如果http状态码正常，则直接返回数据
+        var data = response.data;
+        var stateName = _httpStatusType["default"].stateName,
+            successCode = _httpStatusType["default"].successCode;
+
+        if (data[stateName] !== successCode) {
+          _elementUi.Message.error(data.message);
+        } // 如果http状态码正常，则直接返回数据
+
+
         return response.data;
       } else {
-        var errorInfo = '';
-
-        switch (status) {
-          case -1:
-            errorInfo = '远程服务响应失败,请稍后重试';
-            break;
-
-          case 400:
-            errorInfo = '400：错误请求';
-            break;
-
-          case 401:
-            errorInfo = '401：访问令牌无效或已过期';
-            break;
-
-          case 403:
-            errorInfo = '403：拒绝访问';
-            break;
-
-          case 404:
-            errorInfo = '404：资源不存在';
-            break;
-
-          case 405:
-            errorInfo = '405：请求方法未允许';
-            break;
-
-          case 408:
-            errorInfo = '408：请求超时';
-            break;
-
-          case 500:
-            errorInfo = '500：访问服务失败';
-            break;
-
-          case 501:
-            errorInfo = '501：未实现';
-            break;
-
-          case 502:
-            errorInfo = '502：无效网关';
-            break;
-
-          case 503:
-            errorInfo = '503：服务不可用';
-            break;
-
-          default:
-            errorInfo = '连接错误';
-        }
-
-        _elementUi.Message.error(errorInfo);
-
         return {
           status: status,
-          msg: errorInfo
+          msg: this.messageText(status)
         };
       }
+    }
+  }, {
+    key: "messageText",
+    value: function messageText(status) {
+      var errorInfo = '';
+
+      switch (status) {
+        case -1:
+          errorInfo = '远程服务响应失败,请稍后重试';
+          break;
+
+        case 400:
+          errorInfo = '400：错误请求';
+          break;
+
+        case 401:
+          errorInfo = '401：访问令牌无效或已过期';
+          break;
+
+        case 403:
+          errorInfo = '403：拒绝访问';
+          break;
+
+        case 404:
+          errorInfo = '404：资源不存在';
+          break;
+
+        case 405:
+          errorInfo = '405：请求方法未允许';
+          break;
+
+        case 408:
+          errorInfo = '408：请求超时';
+          break;
+
+        case 500:
+          errorInfo = '500：访问服务失败';
+          break;
+
+        case 501:
+          errorInfo = '501：未实现';
+          break;
+
+        case 502:
+          errorInfo = '502：无效网关';
+          break;
+
+        case 503:
+          errorInfo = '503：服务不可用';
+          break;
+
+        default:
+          errorInfo = '连接错误';
+      }
+
+      _elementUi.Message.error(errorInfo);
+
+      return errorInfo;
     }
   }, {
     key: "request",
@@ -187,9 +218,7 @@ function () {
       // 每次请求都会创建新的axios实例。
       var instance = _axios["default"].create();
 
-      this._axios = instance;
-      this.CancelToken = _axios["default"].CancelToken;
-      console.log('cancelToken: ', this.CancelToken);
+      var CancelToken = _axios["default"].CancelToken;
 
       var config = _objectSpread({}, options, {
         baseURL: this._config.baseURL,
@@ -205,62 +234,52 @@ function () {
       }); // 配置拦截器，支持根据不同url配置不同的拦截器。
 
 
-      this.setInterceptors(instance, options.url);
+      this.setInterceptors(instance, CancelToken);
       return instance(config); // 返回axios实例的执行结果
+    }
+  }, {
+    key: "get",
+    value: function get(url, data) {
+      return this.request({
+        method: 'get',
+        url: url,
+        params: data
+      });
+    }
+  }, {
+    key: "post",
+    value: function post(url, data) {
+      return this.request({
+        method: 'post',
+        url: url,
+        params: data
+      });
+    }
+  }, {
+    key: "delete",
+    value: function _delete(url, data) {
+      return this.request({
+        method: 'delete',
+        url: url,
+        params: data
+      });
+    }
+  }, {
+    key: "put",
+    value: function put(url, data) {
+      return this.request({
+        method: 'put',
+        url: url,
+        params: data
+      });
     }
   }]);
 
-  return Https;
+  return NewAxios;
 }();
 
-var $http = new Https();
+_vue["default"].prototype.$http = new NewAxios();
 
-var get = function get(url, data) {
-  return $http._axios.get(url, {
-    params: data
-  });
-};
+var _default = new NewAxios();
 
-exports.get = get;
-
-var post = function post(url, data) {
-  return $http._axios.post(url, data);
-};
-
-exports.post = post;
-
-var del = function del(url, data) {
-  return $http._axios["delete"](url, {
-    data: data
-  });
-};
-
-exports.del = del;
-
-var put = function put(url, data) {
-  return $http._axios.put(url, data);
-};
-
-exports.put = put;
-
-Plugin.install = function (Vue, options) {
-  Vue.axios = $http._axios;
-  window.axios = $http._axios;
-  Object.defineProperties(Vue.prototype, {
-    axios: {
-      get: function get() {
-        return $http._axios;
-      }
-    },
-    $axios: {
-      get: function get() {
-        return $http._axios;
-      }
-    }
-  });
-};
-
-_vue["default"].use(Plugin);
-
-var _default = Plugin;
 exports["default"] = _default;

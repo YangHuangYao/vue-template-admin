@@ -1,48 +1,26 @@
+// 打包分析
 const path = require('path')
 const resolve = dir => path.join(__dirname, dir)
 const IS_PROD = ['production', 'test', 'beta'].includes(process.env.NODE_ENV)
+const proxy = require('./src/config/proxy.js')
 
 // 开启gzip压缩
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin // 打包分析
-// 配置代理start
-const proxy = {}
-const pathRewriteA = {}
-const pathRewriteB = {}
-const proxyObj = {
-  secure: false,
-  changeOrigin: true // 开启代理，在本地创建一个虚拟服务端
-  // ws: true, // 是否启用websockets
-}
-if (process.env.APP_API_PATH_NAME) {
-  pathRewriteA[`^${process.env.APP_API_PATH_NAME}`] = ''
-  proxyObj.target = process.env.APP_API_URL
-  proxyObj.pathRewrite = pathRewriteA
-  proxy[process.env.APP_API_PATH_NAME] = proxyObj
-}
-if (process.env.APP_TEMPLATE_PATH_NAME) {
-  pathRewriteB[`^${process.env.APP_TEMPLATE_PATH_NAME}`] = ''
-  proxyObj.target = process.env.APP_TEMPLATE_PATH_NAME
-  proxyObj.pathRewrite = pathRewriteB
-  proxy[process.env.APP_API_PATH_NAME] = proxyObj
-}
-// 配置代理end
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 module.exports = {
-  productionSourceMap: !IS_PROD, // 生产环境的 source map
   devServer: {
     overlay: {
       // 让浏览器 overlay 同时显示警告和错误
       warnings: true,
       errors: true
     },
-    open: true, // 是否打开浏览器
+    open: false, // 是否打开浏览器
     host: 'localhost',
-    port: '8080', // 代理断就
+    port: '8083', // 代理断就
     // https: false,
     hotOnly: true, // 热更新
-    proxy: proxy
+    proxy: proxy.proxy
   },
   chainWebpack: config => {
     // 修复HMR热更新
@@ -50,8 +28,8 @@ module.exports = {
     // 添加别名
     config.resolve.alias
       .set('@', resolve('src'))
-      .set('@assets', resolve('src/assets'))
       .set('@api', resolve('src/api'))
+      .set('@assets', resolve('src/assets'))
       .set('@icons', resolve('src/assets/icons'))
       .set('@styles', resolve('src/assets/styles'))
       .set('@images', resolve('src/assets/images'))
@@ -67,7 +45,7 @@ module.exports = {
       .set('@router', resolve('src/router'))
       .set('@store', resolve('src/store'))
       .set('@views', resolve('src/views'))
-      .set('@themes', resolve('src/themes'))
+      .set('@examples', resolve('examples'))
       .set('@utils', resolve('src/utils'))
     if (IS_PROD) {
       // 图片压缩
