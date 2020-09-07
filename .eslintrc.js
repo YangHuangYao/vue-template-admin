@@ -6,7 +6,9 @@ module.exports = {
     node: true,
     es6: true
   },
-  extends: ['plugin:vue/essential', '@vue/standard'],
+  extends: [
+    'plugin:vue/essential', '@vue/standard'
+  ],
   parserOptions: {
     parser: 'babel-eslint'
   },
@@ -19,7 +21,7 @@ module.exports = {
     'comma-dangle': [2, 'never'], // 对象字面量项尾不能有逗号
     'consistent-this': [2, 'self'], // this别名
     eqeqeq: 2, // 必须使用全等
-    indent: ['error', 2],
+    // indent: ['error', 0],
     'no-console': IS_PROD ? 'warn' : 'off',
     'no-debugger': IS_PROD ? 'warn' : 'off',
     'no-const-assign': 2, // 禁止修改const声明的变量
@@ -27,7 +29,9 @@ module.exports = {
     'no-multi-str': 2, // 字符串不能用\换行
     'no-multi-spaces': 1, // 不能用多余的空格
     'no-mixed-spaces-and-tabs': [0], // 禁止混用tab和空格
-    'no-multiple-empty-lines': [1, { max: 2 }], // 空行最多不能超过2行
+    'no-multiple-empty-lines': [1, {
+      max: 2
+    }], // 空行最多不能超过2行
     'no-new-func': 1, // 禁止使用new Function
     'no-new-object': 2, // 禁止使用new Object()
     'no-new-require': 2, // 禁止使用new require

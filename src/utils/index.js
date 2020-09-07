@@ -1,41 +1,41 @@
+import Storage from './storage'
 class Utils {
   constructor() {
-    this._utils = {
-      storageType: 'session'
-    }
+    this.storage = Storage
   }
 
-  storageSet(type = this._utils.storageType, name, data) {
-    if (type === 'session') {
-      sessionStorage.setItem(name, JSON.stringify(data))
+  changeStr (str) {
+    if (str.includes('/')) {
+      const index = str.lastIndexOf('/')
+      str = str.substring(index + 1, str.length)
+      return str.charAt(0).toUpperCase() + str.slice(1)
     } else {
-      localStorage.setItem(name, JSON.stringify(data))
+      return str.charAt(0).toUpperCase() + str.slice(1)
     }
   }
 
-  storageRemove(type = this._utils.storageType, name) {
-    if (type === 'session') {
-      sessionStorage.removeItem(name)
-    } else {
-      localStorage.removeItem(name)
-    }
+  getStrAfter (sourceSrt, target) { // 获取指定字符之后的内容
+    const index = sourceSrt.lastIndexOf(target)
+
+    return sourceSrt.substring(index + 1, sourceSrt.length)
   }
 
-  storageClear(type = this._utils.storageType) {
-    if (type === 'session') {
-      sessionStorage.clear()
-    } else {
-      localStorage.clear()
-    }
+
+  getStrBefore (sourceSrt, target) { // 获取指定字符之前的内容
+    const index = sourceSrt.lastIndexOf(target)
+    return sourceSrt.substring(0, index)
   }
 
-  storageGet(type = this._utils.storageType, name) {
-    const storg = type === 'session' ? sessionStorage.getItem(name) : localStorage.getItem(name)
-    try {
-      return storg ? (type === 'session' ? JSON.parse(sessionStorage.getItem(name)) : JSON.parse(localStorage.getItem(name))) : ''
-    } catch (err) {
-      console.log('err: ', err)
-    }
+  firstUpperCase (str) { // 首字母大写
+    const firstPathName = str[0].toUpperCase()
+    const lastPathName = str.substring(1, str.length)
+    return firstPathName + lastPathName
+  }
+
+  firstToLowerCase (str) { // 首字母小写
+    const firstPathName = str[0].toLowerCase()
+    const lastPathName = str.substring(1, str.length)
+    return firstPathName + lastPathName
   }
 }
 export default new Utils()

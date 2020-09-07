@@ -1,14 +1,6 @@
-class Config {
-  constructor(options) {
-    this._config = {}
-  }
-
-  regist(type, value) {
-    this._config[type] = value
-  }
-
-  get(type) {
-    return this._config[type]
-  }
+export default {
+  title: 'Yundayin-Element-Admin',
+  fixedHeader: false,
+  tagsView: true,
+  sidebarLogo: false
 }
-export default new Config()

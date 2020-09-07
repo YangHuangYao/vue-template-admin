@@ -2,6 +2,9 @@ import Vue from 'vue'
 import 'element-ui/lib/theme-chalk/index.css'
 import {
   Button,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
   Dialog,
   Breadcrumb,
   BreadcrumbItem,
@@ -38,6 +41,9 @@ import {
 } from 'element-ui'
 
 Vue.use(Button)
+Vue.use(Dropdown)
+Vue.use(DropdownMenu)
+Vue.use(DropdownItem)
 Vue.use(Dialog)
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)

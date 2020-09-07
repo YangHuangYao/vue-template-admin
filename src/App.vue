@@ -5,24 +5,33 @@
 </template>
 
 <script>
-
 export default {
   name: 'app',
-  components: {
+  watch: {
+    $route (newValue) {
+      return newValue
+    }
+  },
+  created () {
+
+  },
+  mounted () {
+    const self = this
+    window.onbeforeunload = function () {
+      const n = window.event.screenX - window.screenLeft
+      const b = n > document.documentElement.scrollWidth - 20
+      if ((b && window.event.clientY < 0) || window.event.altKey) {
+        console.log('是关闭而非刷新')
+      } else { // 刷新
+        if (self.$route.path !== '/login') {
+          self.$utils.storage.set({ type: 'local', key: 'currentPage', data: self.$route.fullPath })
+        }
+      }
+    }
+  },
+  methods: {
+
   }
 }
 </script>
 
-<style>
-body,html{
-  margin:0;padding:0
-}
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
