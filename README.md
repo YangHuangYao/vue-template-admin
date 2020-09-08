@@ -3,7 +3,7 @@
 先安装脚手架 ymc-vue-cli
 全局 npm i ymc-vue-cli –g
 
-### 创建项目步骤如下
+### 创建项目命令
 
 ymc init template projectName(要创建的项目名称)
 
