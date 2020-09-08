@@ -32,7 +32,7 @@ export default {
   methods: {
     open () {
       this.$router.push({
-        path: '/table/form/detail',
+        path: '/table/form/form-detail',
         query: {
           id: '15585'
         }

@@ -73,7 +73,7 @@ export const asyncRoutes = [{
     },
     redirect: '/table/form/list',
     children: [{
-      path: 'list',
+      path: 'form-list',
       name: 'list',
       hidden: true,
       component: () => import('@views/table/form/list.vue'),
@@ -86,7 +86,7 @@ export const asyncRoutes = [{
       }
     },
     {
-      path: 'detail',
+      path: 'form-detail',
       name: 'Detail',
       hidden: true,
       component: () => import('@views/table/form/detail.vue'),
