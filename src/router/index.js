@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import store from '@store'
 import Router from 'vue-router'
 /* Layout */
 import Layout from '@views/layout/index.vue'

@@ -1,5 +1,5 @@
 export default {
-  title: 'Yundayin-Element-Admin',
+  title: 'Ymc-Element-Admin',
   fixedHeader: false,
   tagsView: true,
   sidebarLogo: false
