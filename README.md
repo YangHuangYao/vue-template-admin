@@ -22,7 +22,11 @@ yarn run serve
 ### Compiles and minifies for production
 
 ```
-yarn run build
+yarn run dev-build //开发环境打包
+yarn run test-build //测试环境打包
+yarn run beta-build //预发布环境打包
+yarn run build //生产环境打包
+
 ```
 
 ### Run your tests
@@ -37,6 +41,6 @@ yarn run test
 yarn run lint
 ```
 
-### Customize configuration
+###ymc-vue-cli 脚手架
 
-See [Configuration Reference](https://cli.vuejs.org/config/).
+See [Configuration Reference](https://www.npmjs.com/package/ymc-vue-cli).
